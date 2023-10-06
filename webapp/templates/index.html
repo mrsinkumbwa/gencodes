@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+        }
+        /* Header styles */
+        .header {
+            display: flex;
+            justify-content:space-evenly;
+            align-items: center;
+            background-color: #007bff;
+            color: #fff;
+            padding: 4px;
+        }
+
+        .business-name {
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .logo {
+            width: 48px; /* Adjust the size of your logo */
+            height: 48px; /* Adjust the size of your logo */
+        }
+
+        .navbar {
+            margin-top: 4px;
+        }
+
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 20px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1080px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 8px 12px;
+            text-align: left;
+            word-break: break-word; /* Allow generated passwords to wrap */
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .passwords-column {
+            width: 75%;
+        }
+
+        .actions-column {
+            width: 25%;
+        }
+
+        .generate-button {
+            display: block;
+            margin-bottom: 20px;
+            padding: 5px 10px;
+            cursor: pointer;
+            text-decoration: none;
+            color: #007bff;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            background-color: transparent;
+        }
+
+        .history-link {
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .action-button {
+            margin-top: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            text-decoration: none;
+            color: #007bff;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            background-color: transparent;
+        }
+
+        .action-button:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        /* Password length control styles */
+        .length-control {
+            display: flex;
+            align-items: center;
+        }
+
+        .length-label {
+            margin-right: 10px;
+        }
+
+        .length-slider {
+            width: 100%;
+        }
+
+        .length-value {
+            font-weight: bold;
+        }
+
+        /* Character set customization styles */
+        .customization {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .customization-label {
+            margin-right: 10px;
+        }
+
+        .customization-checkbox {
+            margin-right: 10px;
+        }
+
+        /* Password complexity indicator styles */
+        .complexity-indicator {
+            font-weight: bold;
+        }
+
+        .weak {
+            color: red;
+        }
+
+        .moderate {
+            color: orange;
+        }
+
+        .strong {
+            color: green;
+        }
+
+        /* Password history dropdown styles */
+        .password-history-dropdown {
+            display: none;
+            position: absolute;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(75, 73, 73, 0.226);
+            width: 320px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 2;
+            border: 1px solid #ccc;
+            padding: 25px;
+            backdrop-filter: blur(25px); /* Apply a blur effect to the background */
+            list-style-type: none;
+            margin-top: -.5%;
+        }
+
+        .password-history-dropdown li {
+            margin-bottom: 15px;
+            font-size: small; /* Set font size to small */
+            word-wrap: break-word; /* Allow text to wrap */
+        }
+
+        /* CSS for the modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .close {
+            color: #aaaaaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        /* Center the modal content */
+        .modal-content {
+            text-align: center;
+        }
+
+        /* Style the input and button */
+        input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        /* Styles for the Forgot Password Popup */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+            z-index: 3;
+        }
+
+        .popup-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            overflow: hidden; /* Prevent content from overflowing */
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 24px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1 class="business-name">Harmonix</h1>
+        <img src="/webapp/templates/logo.svg" alt="Logo" class="logo">
+        <div class="navbar">
+            <a href="#features">Features</a>
+            <a href="#about">About Us</a>
+            <a href="#signin">Sign In</a>
+            <a href="#signup">Sign Up</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Password Generator</h1>
+
+        <!-- Password history section -->
+        <a class="generate-button history-link" id="history-button">HISTORY</a>
+        <ul class="password-history-dropdown" id="password-history-dropdown">
+            <!-- Display generated passwords here -->
+
+            <p>History is empty, please generate passwords.</p>
+        </ul>
+        <!-- Download history button -->
+        <button onclick="downloadHistory();" class="generate-button">Download History</button>
+        <!-- Password length control -->
+        <div class="length-control">
+            <label class="length-label">Password Length:</label>
+            <input type="range" class="length-slider" min="4" max="128" step="1" value="12" oninput="updateSliderValue(this.value)">
+            <span class="length-value" id="length-value">12</span>
+        </div>
+
+        <!-- Character set customization -->
+        <div class="customization">
+            <label class="customization-label">Character Sets:</label>
+            <input type="checkbox" id="uppercase-checkbox" checked class="customization-checkbox">
+            <label for="uppercase-checkbox">Uppercase</label>
+            <input type="checkbox" id="lowercase-checkbox" checked class="customization-checkbox">
+            <label for="lowercase-checkbox">Lowercase</label>
+            <input type="checkbox" id="numbers-checkbox" checked class="customization-checkbox">
+            <label for="numbers-checkbox">Numbers</label>
+            <input type="checkbox" id="special-checkbox" checked class="customization-checkbox">
+            <label for="special-checkbox">Special Characters</label>
+        </div>
+
+        <!-- Password complexity indicator -->
+        <div class="complexity-indicator">
+            Password Complexity: <span id="complexity">Weak</span>
+        </div>
+
+        <button onclick="generatePasswords();" class="generate-button">Generate Passwords</button>
+        <table>
+            <thead>
+                <tr>
+                    <th class="passwords-column">Passwords</th>
+                    <th class="actions-column">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="passwords-table-body">
+                <!-- Display generated passwords here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Features Section -->
+    <section id="features" style="padding: 40px; background-color: #f7f7f7;">
+        <h2 style="text-align: center; margin-bottom: 20px;">Features</h2>
+        <div style="display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap;">
+            <!-- Feature 1: Generate Passwords -->
+            <div style="flex: 1; max-width: 300px; text-align: center; margin: 20px;">
+                <h3>Generate Passwords</h3>
+                <p>Create strong and unique passwords with customizable settings.</p>
+            </div>
+
+            <!-- Feature 2: Password History -->
+            <div style="flex: 1; max-width: 300px; text-align: center; margin: 20px;">
+                <h3>Password History</h3>
+                <p>View and download your password history for easy reference.</p>
+            </div>
+
+            <!-- Feature 3: Copy to Clipboard -->
+            <div style="flex: 1; max-width: 300px; text-align: center; margin: 20px;">
+                <h3>Copy to Clipboard</h3>
+                <p>Quickly copy generated passwords to your clipboard with a single click.</p>
+            </div>
+
+            <!-- Add more features as needed -->
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section id="about" style="padding: 40px; background-color: #f7f7f7;">
+        <h2 style="text-align: center; margin-bottom: 20px;">About Us</h2>
+        <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+            <p>
+                Welcome to our Password Generator application! We are committed to providing you with secure and convenient password generation services.
+            </p>
+            <p>
+                Our mission is to help you create strong and unique passwords to enhance your online security. With our user-friendly interface and customizable options, you can generate passwords tailored to your needs.
+            </p>
+            <p>
+                Whether you're looking for complex passwords for your online accounts or just need a secure passphrase, our application has you covered. Feel free to explore our features and generate passwords with confidence.
+            </p>
+        </div>
+    </section>
+
+    <!-- Sign In Section -->
+    <section id="signin" style="padding: 40px; background-color: #fff;">
+        <h2 style="text-align: center; margin-bottom: 20px;">Sign In</h2>
+        <div style="max-width: 400px; margin: 0 auto;">
+            <form id="signin-form">
+                <div style="margin-bottom: 15px;">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required style="width: 100%; padding: 8px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required style="width: 100%; padding: 8px;">
+                </div>
+                <div style="text-align: center;">
+                    <button type="submit" style="padding: 10px 20px; background-color: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Sign In</button>
+                </div>
+            </form>
+            <!-- Forgot Password Link -->
+            <p style="text-align: center; margin-top: 15px;">
+                <a href="javascript:void(0);" onclick="openForgotPasswordPopup();">Forgot your password?</a>
+            </p>
+        </div>
+    </section>
+
+    <!-- Forgot Password Popup -->
+    <div id="forgotPasswordPopup" class="popup">
+        <div class="popup-content">
+            <span class="popup-close" onclick="closeForgotPasswordPopup();">&times;</span>
+            <h2>Forgot Password</h2>
+            <p>Enter your email address to reset your password.</p>
+            <form id="forgotPasswordForm">
+                <div style="margin-bottom: 15px;">
+                    <label for="forgotEmail">Email:</label>
+                    <input type="email" id="forgotEmail" name="forgotEmail" required style="width: 100%; padding: 8px;">
+                </div>
+                <div style="text-align: center;">
+                    <button type="button" onclick="sendResetLink();" style="padding: 10px 20px; background-color: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Send Reset Link</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Sign Up Section -->
+    <section id="signup" style="padding: 40px; background-color: #fff;">
+        <h2 style="text-align: center; margin-bottom: 20px;">Sign Up</h2>
+        <div style="max-width: 400px; margin: 0 auto;">
+            <form id="signup-form">
+                <div style="margin-bottom: 15px;">
+                    <label for="name">Full Name:</label>
+                    <input type="text" id="name" name="name" required style="width: 100%; padding: 8px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required style="width: 100%; padding: 8px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required style="width: 100%; padding: 8px;">
+                </div>
+                <div style="text-align: center;">
+                    <button type="submit" style="padding: 10px 20px; background-color: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Sign Up</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <script>
+        // Array to store generated passwords along with generation time
+        const passwordHistory = [];
+
+        // Function to add a password to the history
+        function addToPasswordHistory(password) {
+            const generationTime = new Date(); // Get the current timestamp
+            passwordHistory.push({ password, generationTime });
+            updatePasswordHistoryUI();
+        }
+
+        // Function to update the password history UI
+        function updatePasswordHistoryUI() {
+            const passwordHistoryDropdown = document.getElementById('password-history-dropdown');
+            passwordHistoryDropdown.innerHTML = '';
+
+            passwordHistory.forEach((entry, index) => {
+                const listItem = document.createElement('li');
+                const formattedTime = entry.generationTime.toLocaleString(); // Format timestamp as a string
+                listItem.textContent = `Password ${index + 1}: ${entry.password} (Generated at ${formattedTime})`;
+                passwordHistoryDropdown.appendChild(listItem);
+            });
+        }
+
+        // Function to toggle password history dropdown visibility
+        function togglePasswordHistory() {
+            const dropdown = document.getElementById('password-history-dropdown');
+            if (dropdown.style.display === 'block') {
+                dropdown.style.display = 'none';
+            } else {
+                dropdown.style.display = 'block';
+            }
+        }
+
+        // Function to update the slider value dynamically
+        function updateSliderValue(length) {
+            document.getElementById('length-value').textContent = length;
+        }
+
+        // Function to update password complexity indicator
+        function updatePasswordComplexity(password) {
+            const complexityElement = document.getElementById('complexity');
+            if (password.length < 8) {
+                complexityElement.textContent = 'Weak';
+                complexityElement.className = 'weak';
+            } else if (password.length >= 12 && /[A-Z]/.test(password) && /[a-z]/.test(password) && /\d/.test(password) && /[!@#$%^&*()_+[\]{}|;:,.<>?]/.test(password)) {
+                complexityElement.textContent = 'Strong';
+                complexityElement.className = 'strong';
+            } else {
+                complexityElement.textContent = 'Moderate';
+                complexityElement.className = 'moderate';
+            }
+        }
+
+        // Function to generate passwords
+        function generatePasswords() {
+            const length = parseInt(document.getElementById('length-value').textContent);
+            const uppercase = document.getElementById('uppercase-checkbox').checked;
+            const lowercase = document.getElementById('lowercase-checkbox').checked;
+            const numbers = document.getElementById('numbers-checkbox').checked;
+            const special = document.getElementById('special-checkbox').checked;
+
+            const charset = generateCharset(uppercase, lowercase, numbers, special);
+            const tableBody = document.getElementById('passwords-table-body');
+            tableBody.innerHTML = '';
+
+            // Generate and display passwords
+            for (let i = 0; i < 5; i++) { // Generate 5 passwords
+                const password = generateRandomPassword(length, charset);
+                addToPasswordHistory(password); // Add to password history
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="passwords-column">${password}</td>
+                    <td class="actions-column">
+                        <a class="action-button" href="data:text/plain;charset=utf-8,${password}" download="password.txt">Download</a>
+                        <button class="action-button" onclick="copyToClipboard('${password}')">Copy</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            }
+        }
+
+        // Function to generate a random password of the specified length
+        function generateRandomPassword(length, charset) {
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * charset.length);
+                password += charset.charAt(randomIndex);
+            }
+            // After generating a password, update its complexity
+            updatePasswordComplexity(password);
+            return password;
+        }
+
+        // Function to copy a password to the clipboard
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            alert('Password copied to clipboard!');
+        }
+
+        // Function to generate character set based on user preferences
+        function generateCharset(uppercase, lowercase, numbers, special) {
+            let charset = '';
+            if (uppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (lowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
+            if (numbers) charset += '0123456789';
+            if (special) charset += '!@#$%^&*()_+[]{}|;:,.<>?';
+            return charset;
+        }
+
+        // Add event listener to toggle password history dropdown visibility
+        document.getElementById('history-button').addEventListener('click', togglePasswordHistory);
+        
+        // Function to download the entire history as a single file
+        function downloadHistory() {
+            if (passwordHistory.length === 0) {
+                alert('Password history is empty. Generate passwords to populate the history.');
+                return;
+            }
+
+            const historyText = passwordHistory.map(entry => {
+                const formattedTime = entry.generationTime.toLocaleString();
+                return `Password: ${entry.password}, Generated at: ${formattedTime}\n`;
+            }).join('\n');
+
+            const blob = new Blob([historyText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'password_history.txt';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+        
+        // Function to open the "Forgot Password" popup
+        function openForgotPasswordPopup() {
+            const popup = document.getElementById('forgotPasswordPopup');
+            popup.style.display = 'block';
+        }
+
+        // Function to close the "Forgot Password" popup
+        function closeForgotPasswordPopup() {
+            const popup = document.getElementById('forgotPasswordPopup');
+            popup.style.display = 'none';
+        }
+
+        // Function to handle sending the reset link (you can customize this)
+        function sendResetLink() {
+            const forgotEmail = document.getElementById('forgotEmail').value;
+            // Implement your logic to send a reset link to the user's email
+            // You can use AJAX or a backend API to handle this part
+            // After sending the reset link, you can display a confirmation message or take further actions.
+            console.log(`Reset link sent to ${forgotEmail}`);
+            closeForgotPasswordPopup(); // Close the popup after sending
+        }
+   </script>
+</body>
+</html>
